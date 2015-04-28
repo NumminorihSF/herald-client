@@ -1,0 +1,28 @@
+{
+  "name": "herald-client",
+  "version": "0.1.1",
+  "description": "Client for herald server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NumminorihSF/herald-client.git"
+  },
+  "keywords": [
+    "publish",
+    "subscribe",
+    "socket",
+    "herald"
+  ],
+  "author": "Konstantine Petryaev <numminorihsf@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/NumminorihSF/herald-client/issues"
+  },
+  "homepage": "https://github.com/NumminorihSF/herald-client#readme",
+  "dependencies": {
+    "crypt-maker": "^0.1.5"
+  }
+}
