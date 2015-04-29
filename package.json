@@ -1,6 +1,6 @@
 {
   "name": "herald-client",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "Client for herald server",
   "main": "index.js",
   "scripts": {
