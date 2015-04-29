@@ -26,32 +26,34 @@ if (module.parent) {
     module.exports = require(__dirname+'/lib/class.js');
 }
 else {
-    var hc = new (require('./lib/class.js'))({iAm: 'asd'});
+    var hc = new (require('./lib/class.js'))();
     hc.on('error', function(error){
         console.log('HC error:', error);
     });
 
     setTimeout(function() {
-        hc.subscribe("All1", function (obj) {
-            console.log('ALL1 message', obj);
+        hc.subscribe("channel1", function (obj) {
+            console.error('chan1:', obj);
         });
-        hc.subscribe("All2", function (obj) {
-            console.log('ALL2 message', obj);
+        hc.subscribe("channel2", function (obj) {
+            console.log('chan2:', obj);
         });
 
 
         setTimeout(function () {
-            hc.unsubscribe("All1");
-            setTimeout(function(){
-                hc.publish('All1', 'all4 body');
-                hc.publish('All2', 'all3 body');
-            },1000);
-        }, 1000);
-    }, 1000);
+            hc.unsubscribe("channel1");
+            setInterval(function(){
+                hc.publish('channel1', 'C1: '+Math.random());
+                hc.publish('channel2', 'C2: '+Math.random());
+            },10).unref();
+        }, 1000).unref();
+    }, 1000).unref();
     process.on('SIGINT', function(){
         hc.close();
+        process.exit();
     });
     process.on('SIGTERM', function(){
         hc.close();
+        process.exit();
     });
 }
