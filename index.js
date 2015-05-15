@@ -26,7 +26,16 @@ if (module.parent) {
     module.exports = require(__dirname+'/lib/class.js');
 }
 else {
-    var hc = new (require('./lib/class.js'))();
+    var hc = new (require('./lib/class.js'))({
+        logger: {
+            trace: function(){},
+            debug: function(){},
+            info: function(){},
+            warn: function(){},
+            error: function(){},
+            fatal: function(){}
+        }
+    });
     hc.on('error', function(error){
         console.log('HC error:', error);
     });
@@ -56,4 +65,5 @@ else {
         hc.close();
         process.exit();
     });
+    console.log(process.pid);
 }
