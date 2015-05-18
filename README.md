@@ -18,7 +18,7 @@ Simple example:
 
 ```js
 
-    var hc = new (require('./lib/class.js'))();
+    var hc = new (require('herald-client'))();
         hc.on('error', function(error){
             console.log('HC error:', error);
         });
