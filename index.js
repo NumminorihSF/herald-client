@@ -45,23 +45,23 @@ else {
     });
     setInterval(function(){console.log(hc.isSocketFree, hc.messageQueue);},1000);
     setTimeout(function(){},10000);
-    //setTimeout(function() {
-    //    hc.subscribe("channel1", function (obj) {
-    //        console.error('chan1:', obj);
-    //    });
-    //    hc.subscribe("channel2", function (obj) {
-    //        console.log('chan2:', obj);
-    //    });
-    //
-    //
-    //    setTimeout(function () {
-    //        hc.unsubscribe("channel1");
-    //        setInterval(function(){
-    //            hc.publish('channel1', 'C1: '+Math.random());
-    //            hc.publish('channel2', 'C2: '+Math.random());
-    //        },10).unref();
-    //    }, 1000).unref();
-    //}, 1000).unref();
+    setTimeout(function() {
+        hc.subscribe("channel1", function (obj) {
+            console.error('chan1:', obj);
+        });
+        hc.subscribe("channel2", function (obj) {
+            console.log('chan2:', obj);
+        });
+
+
+        setTimeout(function () {
+            hc.unsubscribe("channel1");
+            setInterval(function(){
+                hc.publish('channel1', 'C1: '+Math.random());
+                hc.publish('channel2', 'C2: '+Math.random());
+            },10).unref();
+        }, 1000).unref();
+    }, 1000).unref();
     process.on('SIGINT', function(){
         hc.close();
         process.exit();
