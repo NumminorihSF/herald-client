@@ -66,9 +66,9 @@ In this example hc will try connect to `127.0.0.1:8765`.
 
 `options` is an Object. May be `{}`. Contains properties:
 * `.logger` - Logger object - to log inner events
-* `.name` - String|Numeric - your application class identified. Default: `Math.floor(Math.random()*1000000)`;
+* `.name` - String|Numeric - your application class identified. Default: `Math.floor(Math.random()*1000000)`
 * `.uid` - String|Numeric - your application unique identified. 
-Default: `name + '_' + Math.floor(Math.random()*1000000)`;
+Default: `name + '_' + Math.floor(Math.random()*1000000)`
 * `.messageMaker` - Object. Some module, that make and parse messages. See below. Default: `crypt-maker`
 * `.connect` - Object. Options for new.Socket.connect. Default: `{port: 8765}` 
  
