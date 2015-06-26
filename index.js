@@ -35,40 +35,55 @@ else {
     });
 
 
-    hc.publish('publishEvent1', 'eventData', function (err, data) {
-        console.log('published', err, data);
+
+    hc.addRpcWorker('someRpc', function(header, args, callback){
+        console.log('RPC IN', args);
+        return callback(null, {hurray: 'RESULT'});
     });
 
+    setTimeout(function() {
+        hc.rpc(hc.name, {name: 'someRpc', args: {'type': 'byName'}}, function (err, data) {
+            console.log('RPC NAME', err, data);
+        });
 
-    hc.on('drain', function(){
-        console.log('DRAIN');
-    });
-    setInterval(function(){console.log(hc.isSocketFree, hc.messageQueue);},1000);
+        hc.rpcUid(hc.uid, {name: 'someRpc', args: {'type': 'buUid'}}, function (err, data) {
+            console.log('RPC UID', err, data);
+        });
+    }, 1000);
+
     setTimeout(function(){},10000);
     setTimeout(function() {
-        hc.subscribe("channel1", function (obj) {
-            console.error('chan1:', obj);
+        hc.subscribe("channel1", function (headerPart, body) {
+            console.error('chan1:', headerPart, body);
         });
-        hc.subscribe("channel2", function (obj) {
-            console.log('chan2:', obj);
+        hc.subscribe("channel2", function (headerPart, body) {
+            console.log('chan2:', headerPart, body);
         });
 
 
         setTimeout(function () {
-            hc.unsubscribe("channel1");
+            hc.unsubscribe("channel1", function(err){
+                if (err) console.error('Error in unsubscribing', err);
+            });
             setInterval(function(){
                 hc.publish('channel1', 'C1: '+Math.random());
                 hc.publish('channel2', 'C2: '+Math.random());
-            },10).unref();
+                hc.publish('channel2', 'C2: '+Math.random());
+                hc.publish('channel2', 'C2: '+Math.random());
+                hc.publish('channel2', 'C2: '+Math.random());
+                hc.publish('channel2', 'C2: '+Math.random());
+                hc.publish('channel2', 'C2: '+Math.random());
+                hc.publish('channel2', 'C2: '+Math.random());
+                hc.publish('channel2', 'C2: '+Math.random());
+            },1).unref();
         }, 1000).unref();
     }, 1000).unref();
     process.on('SIGINT', function(){
-        hc.close();
-        process.exit();
+        hc.close(process.exit);
     });
     process.on('SIGTERM', function(){
-        hc.close();
-        process.exit();
+        hc.close(process.exit);
+        //process.exit();
     });
     console.log(process.pid);
 }
