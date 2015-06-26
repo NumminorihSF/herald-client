@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Herald-client : Client lib for herald server">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Herald-client</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/NumminorihSF/herald-client">View on GitHub</a>
+
+          <h1 id="project_title">Herald-client</h1>
+          <h2 id="project_tagline">Client lib for herald server</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/NumminorihSF/herald-client/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/NumminorihSF/herald-client/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>Client lib for herald server</p>
+
+<p>Install with:</p>
+
+<pre><code>npm install herald-client
+</code></pre>
+
+<p>Dependencies:</p>
+
+<pre><code>crypt-maker
+</code></pre>
+
+<p><a href="http://numminorihsf.github.io/herald">Documentation by jsDuck. Also in RUS</a>. </p>
+
+<h1>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h1>
+
+<p>Simple example:</p>
+
+<div class="highlight highlight-js"><pre>
+    <span class="pl-k">var</span> hc <span class="pl-k">=</span> <span class="pl-k">new</span> (<span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>herald-client<span class="pl-pds">'</span></span>))();
+        hc.on(<span class="pl-s"><span class="pl-pds">'</span>error<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">error</span>){
+            <span class="pl-en">console</span><span class="pl-c1">.log</span>(<span class="pl-s"><span class="pl-pds">'</span>HC error:<span class="pl-pds">'</span></span>, error);
+        });
+
+        <span class="pl-c1">setTimeout</span>(<span class="pl-k">function</span>() {
+            hc.subscribe(<span class="pl-s"><span class="pl-pds">"</span>channel1<span class="pl-pds">"</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">sendedBy</span>, <span class="pl-smi">obj</span>) {
+                <span class="pl-en">console</span><span class="pl-c1">.error</span>(<span class="pl-s"><span class="pl-pds">'</span>chan1:<span class="pl-pds">'</span></span>, obj);
+            });
+            hc.subscribe(<span class="pl-s"><span class="pl-pds">"</span>channel2<span class="pl-pds">"</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">sendedBy</span>, <span class="pl-smi">obj</span>) {
+                <span class="pl-en">console</span><span class="pl-c1">.log</span>(<span class="pl-s"><span class="pl-pds">'</span>chan2:<span class="pl-pds">'</span></span>, sendedBy, obj);
+            });
+
+
+            <span class="pl-c1">setTimeout</span>(<span class="pl-k">function</span> () {
+                hc.unsubscribe(<span class="pl-s"><span class="pl-pds">"</span>channel1<span class="pl-pds">"</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">err</span>){
+                    <span class="pl-k">if</span> (err) <span class="pl-en">console</span><span class="pl-c1">.error</span>(<span class="pl-s"><span class="pl-pds">'</span>Error in unsubscribing<span class="pl-pds">'</span></span>, err);
+                });
+                <span class="pl-c1">setInterval</span>(<span class="pl-k">function</span>(){
+                    hc.publish(<span class="pl-s"><span class="pl-pds">'</span>channel1<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>C1: <span class="pl-pds">'</span></span><span class="pl-k">+</span><span class="pl-c1">Math</span>.<span class="pl-c1">random</span>());
+                    hc.publish(<span class="pl-s"><span class="pl-pds">'</span>channel2<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>C2: <span class="pl-pds">'</span></span><span class="pl-k">+</span><span class="pl-c1">Math</span>.<span class="pl-c1">random</span>());
+                },<span class="pl-c1">10</span>);
+            }, <span class="pl-c1">1000</span>);
+        }, <span class="pl-c1">1000</span>);
+        <span class="pl-c1">process</span>.on(<span class="pl-s"><span class="pl-pds">'</span>SIGINT<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(){
+            hc.<span class="pl-c1">close</span>();
+            <span class="pl-c1">process</span>.exit();
+        });
+        <span class="pl-c1">process</span>.on(<span class="pl-s"><span class="pl-pds">'</span>SIGTERM<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(){
+            hc.<span class="pl-c1">close</span>();
+            <span class="pl-c1">process</span>.exit();
+        });
+</pre></div>
+
+<p>In this example hc will try connect to <code>127.0.0.1:8765</code>.</p>
+
+<h1>
+<a id="methods" class="anchor" href="#methods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Methods</h1>
+
+<h2>
+<a id="new-heraldclientoptions-algorithm-key" class="anchor" href="#new-heraldclientoptions-algorithm-key" aria-hidden="true"><span class="octicon octicon-link"></span></a>new HeraldClient([options], [algorithm[, key]])</h2>
+
+<p><code>options</code> is an Object. May be <code>{}</code>. Contains properties:</p>
+
+<ul>
+<li>
+<code>.logger</code> - Logger object - to log inner events</li>
+<li>
+<code>.name</code> - String|Numeric - your application class identified. Default: <code>Math.floor(Math.random()*1000000)</code>
+</li>
+<li>
+<code>.uid</code> - String|Numeric - your application unique identified. 
+Default: <code>name + '_' + Math.floor(Math.random()*1000000)</code>
+</li>
+<li>
+<code>.messageMaker</code> - Object. Some module, that make and parse messages. See below. Default: <code>crypt-maker</code>
+</li>
+<li>
+<code>.connect</code> - Object. Options for new.Socket.connect. Default: <code>{port: 8765}</code> </li>
+</ul>
+
+<p>See <a href="https://nodejs.org/api/net.html#net_net_connect_options_connectionlistener">https://nodejs.org/api/net.html#net_net_connect_options_connectionlistener</a>. Default: <code>{port:8765}</code></p>
+
+<p>If use <code>crypt-maker</code> and if <code>algorithm &amp;&amp; algorithm !== 'no'</code> and no key passed to constructor - throws error.</p>
+
+<h2>
+<a id="hcconnectoptions" class="anchor" href="#hcconnectoptions" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.connect([options])</h2>
+
+<p>Connect to server. If options aren't passed, connect with last options.
+If already connected - do nothing.
+Options are:</p>
+
+<ul>
+<li>
+<code>options</code> {Object} [optional] </li>
+</ul>
+
+<p>Supports the following properties:</p>
+
+<ul>
+<li>
+<code>port</code> {Number} [optional]</li>
+<li>
+<code>host</code> {String} [optional]</li>
+<li>
+<code>backlog</code> {Number} [optional]</li>
+<li>
+<code>path</code> {String} [optional]</li>
+<li>
+<code>exclusive</code> {Boolean} [optional]</li>
+</ul>
+
+<p>For all info about this see: See 
+<a href="https://nodejs.org/api/net.html#net_net_connect_options_connectionlistener">https://nodejs.org/api/net.html#net_net_connect_options_connectionlistener</a>.</p>
+
+<h2>
+<a id="hcclosecallback" class="anchor" href="#hcclosecallback" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.close([callback])</h2>
+
+<p>Stops the client and close connect from accepting new connections and keeps existing
+connections.</p>
+
+<ul>
+<li>
+<code>callback</code> {Function} [optional]</li>
+</ul>
+
+<h2>
+<a id="hcsubscribeeventname-callback" class="anchor" href="#hcsubscribeeventname-callback" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.subscribe(eventName, callback)</h2>
+
+<p>Create subscribing on server. Then event emitted - call <code>callback(senderIdentifier, bodyOfMessage)</code>. 
+If error on subscribe <code>hc</code> will emit <code>'error'</code> event.</p>
+
+<ul>
+<li>
+<code>eventName</code> {String} - name of event</li>
+<li>
+<code>callback</code> {Function}</li>
+</ul>
+
+<h2>
+<a id="hcunsubscribeeventname-callback" class="anchor" href="#hcunsubscribeeventname-callback" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.unsubscribe(eventName[, callback])</h2>
+
+<p>Unsubscribe from event with name. If no <code>callback</code> and error on unsubscribe <code>hc</code> will emit <code>'error'</code> event.</p>
+
+<ul>
+<li>
+<code>eventName</code> {String} - name of event</li>
+<li>
+<code>callback</code> {Function} [optional]</li>
+</ul>
+
+<h2>
+<a id="hcpublisheventname-body-callback" class="anchor" href="#hcpublisheventname-body-callback" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.publish(eventName, body[, callback])</h2>
+
+<p>Publish event on server. If no <code>callback</code> and error on publish <code>hc</code> will emit <code>'error'</code> event.</p>
+
+<ul>
+<li>
+<code>whom</code> {String} - application name to send.</li>
+<li>
+<code>eventName</code> {String} - name of event</li>
+<li>
+<code>eventBody</code> {String | Object} - body of event</li>
+<li>
+<code>callback</code> {Function} [optional]</li>
+</ul>
+
+<h2>
+<a id="hcwhisperwhom-body-header-removed" class="anchor" href="#hcwhisperwhom-body-header-removed" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.whisper(whom, body[, header]) removed</h2>
+
+<h2>
+<a id="hcwhispwhom-eventname-eventbody-callback" class="anchor" href="#hcwhispwhom-eventname-eventbody-callback" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.whisp(whom, eventName, eventBody, callback)</h2>
+
+<p>Send event message to one application with name. 
+(Will send to one instance, but not for all application with name).</p>
+
+<ul>
+<li>
+<code>whom</code> {String} - application name to send.</li>
+<li>
+<code>eventName</code> {String} - name of event</li>
+<li>
+<code>eventBody</code> {String | Object} - body of event</li>
+<li>
+<code>callback</code> {Function}</li>
+</ul>
+
+<h2>
+<a id="hcwhispuidwhomuid-eventname-eventbody-callback" class="anchor" href="#hcwhispuidwhomuid-eventname-eventbody-callback" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.whispUid(whomUid, eventName, eventBody, callback)</h2>
+
+<p>Send event message to one application with uid.</p>
+
+<ul>
+<li>
+<code>whomUid</code> {String} - application name to send.</li>
+<li>
+<code>eventName</code> {String} - name of event</li>
+<li>
+<code>eventBody</code> {String | Object} - body of event</li>
+<li>
+<code>callback</code> {Function}</li>
+</ul>
+
+<h2>
+<a id="hcrpcwhom-action-options-callback" class="anchor" href="#hcrpcwhom-action-options-callback" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.rpc(whom, action[, options][, callback])</h2>
+
+<p>Try call procedure on application with name. 
+(Will send to one instance, but not for all application with name).</p>
+
+<ul>
+<li>
+<code>whom</code> {String} - application name to send.</li>
+<li>
+<code>action</code> {Object} - action object, that you want to call at application.</li>
+<li>
+<code>action.name</code> {String} - action name, that you want to call at application.</li>
+<li>
+<code>action.args</code> {Object | String | Number | Array} - arguments for action. <code>!!action.args</code> should return true.</li>
+<li>
+<code>options</code> {Object} [optional] Options for rpc. <em>not ready yet</em>.</li>
+<li>
+<code>callback</code> {Function} [optional]</li>
+</ul>
+
+<h2>
+<a id="hcrpcuidwhomuid-action-options-callback" class="anchor" href="#hcrpcuidwhomuid-action-options-callback" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.rpcUid(whomUid, action[, options][, callback])</h2>
+
+<p>Try call procedure on application with uid.</p>
+
+<ul>
+<li>
+<code>whomUid</code> {String} - application name to send.</li>
+<li>
+<code>action</code> {Object} - action object, that you want to call at application.</li>
+<li>
+<code>action.name</code> {String} - action name, that you want to call at application.</li>
+<li>
+<code>action.args</code> {Object | String | Number | Array} - arguments for action. <code>!!action.args</code> should return true.</li>
+<li>
+<code>options</code> {Object} [optional] Options for rpc. <em>not ready yet</em>.</li>
+<li>
+<code>callback</code> {Function} [optional]</li>
+</ul>
+
+<h2>
+<a id="hcwriteheader-body-options-callback" class="anchor" href="#hcwriteheader-body-options-callback" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.write(header, body[, options][, callback])</h2>
+
+<p>Send some message to server. <em>At now ignored by server</em></p>
+
+<ul>
+<li>
+<code>header</code> {Object} - header of message to send.</li>
+<li>
+<code>body</code> {Object|string} - body of message yo send.</li>
+<li>
+<code>options</code> {Object} [optional] Options for rpc. <em>not ready yet</em>.</li>
+<li>
+<code>callback</code> {Function} [optional]</li>
+</ul>
+
+<h2>
+<a id="hcaddrpcworkeractionname-callback" class="anchor" href="#hcaddrpcworkeractionname-callback" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.addRpcWorker(actionName, callback)</h2>
+
+<p>Add function to work with rpc calls.</p>
+
+<ul>
+<li>
+<code>actionName</code> {String} - action name.</li>
+<li>
+<code>callback</code> {Function} - function to call. See 
+<a href="http://numminorihsf.github.io/herald/index.html#!/api/HeraldClient-method-remoteProcedure">doc</a>
+</li>
+</ul>
+
+<p>Returns <code>true</code> if added or <code>false</code> if there was function with such name.</p>
+
+<h2>
+<a id="hcremoverpcworkeractionname" class="anchor" href="#hcremoverpcworkeractionname" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.removeRpcWorker(actionName)</h2>
+
+<p>Remove function from work with rpc calls.</p>
+
+<ul>
+<li>
+<code>actionName</code> {String} - action name.</li>
+</ul>
+
+<p>Returns <code>true</code> if was such function else returns <code>false</code>.</p>
+
+<h2>
+<a id="hcunref" class="anchor" href="#hcunref" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.unref()</h2>
+
+<p>Calling <code>unref</code> on a client will allow the program to exit if this is the only
+active client in the event system. If the server is already <code>unref</code>d calling
+<code>unref</code> again will have no effect.
+Every success <code>.connect()</code> create new connection. That's why you should call <code>unref</code> again. </p>
+
+<h2>
+<a id="hcref" class="anchor" href="#hcref" aria-hidden="true"><span class="octicon octicon-link"></span></a>hc.ref()</h2>
+
+<p>Opposite of <code>unref</code>, calling <code>ref</code> on a previously <code>unref</code>d server will <em>not</em>
+let the program exit if it's the only server left (the default behavior). If
+the server is <code>ref</code>d calling <code>ref</code> again will have no effect.</p>
+
+<h1>
+<a id="events" class="anchor" href="#events" aria-hidden="true"><span class="octicon octicon-link"></span></a>Events</h1>
+
+<h2>
+<a id="ping" class="anchor" href="#ping" aria-hidden="true"><span class="octicon octicon-link"></span></a>'ping'</h2>
+
+<p>Emitted when a server send 'ping' event.</p>
+
+<h2>
+<a id="connect" class="anchor" href="#connect" aria-hidden="true"><span class="octicon octicon-link"></span></a>'connect'</h2>
+
+<p>Emitted when the socket has been connected to server.</p>
+
+<h2>
+<a id="close" class="anchor" href="#close" aria-hidden="true"><span class="octicon octicon-link"></span></a>'close'</h2>
+
+<p>Emitted when the socket closes. Note that if connections exist, this
+event is not emitted until all connections are ended.</p>
+
+<h2>
+<a id="error" class="anchor" href="#error" aria-hidden="true"><span class="octicon octicon-link"></span></a>'error'</h2>
+
+<ul>
+<li>{Error Object}</li>
+</ul>
+
+<p>Emitted when an error occurs.  The <code>'close'</code> event will be called directly
+following this event.</p>
+
+<h1>
+<a id="message-format" class="anchor" href="#message-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>Message format</h1>
+
+<p>Every message should has <code>header</code> and <code>body</code>.
+If there is no <code>header</code> or <code>body</code> - message will not sent.</p>
+
+<h2>
+<a id="authorize" class="anchor" href="#authorize" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authorize</h2>
+
+<p><strong>Be careful</strong> by default without any encrypt algorithm any can connect to your server if he know format.</p>
+
+<p>Example of message to authorize (without encrypt):</p>
+
+<pre><code>    '{"rpc":"herald-server","action":"authorize","actionId":7,"name":"156512",
+    "uid":"156512_86835","messId":76688,"retry":5,"timeout":15000}\r\n
+     {"args":{"wellKnown":"pHrAsE","name":"156512","uid":"156512_86835","rand":459}}\r\n\r\n' 
+</code></pre>
+
+<p>If there is some connection with same uid - will not authorize new connection and close it.</p>
+
+<h2>
+<a id="message-header-format" class="anchor" href="#message-header-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>Message header format</h2>
+
+<p>Fields:</p>
+
+<ul>
+<li>
+<code>messId</code> Number - id of message. Client set it automaticaly.</li>
+<li>
+<code>name</code> String - connection name. Used for whispering and rpc. Client set it to HeraldClient.name.</li>
+<li>
+<code>uid</code> String - connection uid. Used for whispering and rpc. Unique for every connect. Client set it to HeraldClient.uid.</li>
+<li>
+<code>retry</code> Number [optional] - Count of retries of sending this message. If no field - will not retry.
+<em>Now it is ignored by server. Will work soon.</em>
+</li>
+<li>
+<code>timeout</code> Number [optional] - Duration in ms to wait answer from client. If no field - will not retry.
+<em>Now it is ignored by server. Will work soon.</em>
+</li>
+</ul>
+
+<p>Event:</p>
+
+<ul>
+<li>
+<code>whisp</code> String [optional] - name of connection to send event message.</li>
+<li>
+<code>whispUid</code> String [optional] - uid of connection to send event message.</li>
+<li>
+<code>event</code> String - event name. If no <code>whisp</code> or <code>whispUid</code> sends to all subscribers.</li>
+</ul>
+
+<p>RPC:</p>
+
+<ul>
+<li>
+<code>actionId</code> Number - id of action. Client set it automaticaly.</li>
+<li>
+<code>action</code> String - name of action.</li>
+<li>
+<code>rpc</code> String [optional] - name of connection to send rpc message.</li>
+<li>
+<code>rpcUid</code> String [optional] - uid of connection to send rpc message.</li>
+<li>
+<code>rpcRegExp</code> String|RegExp [optional] - regexp to find connections by name to send rpc message.</li>
+</ul>
+
+<h2>
+<a id="message-body-format" class="anchor" href="#message-body-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>Message body format</h2>
+
+<p>Body can by plain string, json, number or something else, except functions.</p>
+
+<h2>
+<a id="message-examples" class="anchor" href="#message-examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Message examples</h2>
+
+<p>Examples shown without any encryption.</p>
+
+<p>RPC by client name message:</p>
+
+<div class="highlight highlight-js"><pre>     <span class="pl-s"><span class="pl-pds">'</span>{"rpc":"applicationToCall","action":"actionToCall","actionId":numberActionIdFromSender,</span>
+<span class="pl-s">     "name":"nameOfSender","uid":"uidOfSender","messId":numberMessageId}<span class="pl-cce">\r\n</span></span>
+<span class="pl-s">         {"args":{argsObject}}<span class="pl-cce">\r\n\r\n</span><span class="pl-pds">'</span></span> </pre></div>
+
+<p>RPC by client UID message:</p>
+
+<div class="highlight highlight-js"><pre>     <span class="pl-s"><span class="pl-pds">'</span>{"rpcUid":"applicationToCall","action":"actionToCall","actionId":numberActionIdFromSender,</span>
+<span class="pl-s">     "name":"nameOfSender","uid":"uidOfSender","messId":numberMessageId}<span class="pl-cce">\r\n</span></span>
+<span class="pl-s">         {"args":{argsObject}}<span class="pl-cce">\r\n\r\n</span><span class="pl-pds">'</span></span> </pre></div>
+
+<p>Whispering message:</p>
+
+<div class="highlight highlight-js"><pre>    <span class="pl-s"><span class="pl-pds">'</span>{"whisp":"nameOfAppToWhisp","event":"someSecretEvent","name":"nameOfSender","uid":"uidOfSender",</span>
+<span class="pl-s">    "messId":numberMessageId}<span class="pl-cce">\r\n</span>"eventBody"<span class="pl-cce">\r\n\r\n</span><span class="pl-pds">'</span></span></pre></div>
+
+<p>Event message:</p>
+
+<div class="highlight highlight-js"><pre>    <span class="pl-s"><span class="pl-pds">'</span>{"event":"someEvent","name":"nameOfSender","uid":"uidOfSender","messId":numberMessageId}<span class="pl-cce">\r\n</span>"eventBody"<span class="pl-cce">\r\n\r\n</span><span class="pl-pds">'</span></span></pre></div>
+
+<h1>
+<a id="license---mit-license" class="anchor" href="#license---mit-license" aria-hidden="true"><span class="octicon octicon-link"></span></a>LICENSE - "MIT License"</h1>
+
+<p>Copyright (c) 2015 Konstantine Petryaev</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Herald-client maintained by <a href="https://github.com/NumminorihSF">NumminorihSF</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
