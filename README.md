@@ -1,6 +1,8 @@
 herald-client
 ===========================
 
+**v1 is not backward compatible with v0** 
+
 Client lib for herald server
 
 Install with:
@@ -10,6 +12,9 @@ Install with:
 Dependencies:
 
     crypt-maker
+
+
+[Documentation by jsDuck. Also in RUS](http://numminorihsf.github.io/herald). 
 
 
 # Usage
@@ -24,16 +29,18 @@ Simple example:
         });
     
         setTimeout(function() {
-            hc.subscribe("channel1", function (obj) {
+            hc.subscribe("channel1", function (sendedBy, obj) {
                 console.error('chan1:', obj);
             });
-            hc.subscribe("channel2", function (obj) {
-                console.log('chan2:', obj);
+            hc.subscribe("channel2", function (sendedBy, obj) {
+                console.log('chan2:', sendedBy, obj);
             });
     
     
             setTimeout(function () {
-                hc.unsubscribe("channel1");
+                hc.unsubscribe("channel1", function(err){
+                    if (err) console.error('Error in unsubscribing', err);
+                });
                 setInterval(function(){
                     hc.publish('channel1', 'C1: '+Math.random());
                     hc.publish('channel2', 'C2: '+Math.random());
@@ -50,18 +57,23 @@ Simple example:
         });
         
 ```
-In this example hc will try connect to 127.0.0.1:8765.
+
+In this example hc will try connect to `127.0.0.1:8765`.
 
 # Methods
 
-## new HeraldClient(options[, algorithm[, key]])
+## new HeraldClient([options], [algorithm[, key]])
 
 `options` is an Object. May be `{}`. Contains properties:
 * `.logger` - Logger object - to log inner events
-* `.iAm` - String|Numeric - your unique identifier. Default: Math.floor(Math.random()*1000000);
-* `.messageMaker` - Object. Some module, that make and parse messages. See below. Default `crypt-maker`
-* `.connect` - Object. Options for new.Socket.connect. 
-See https://nodejs.org/api/net.html#net_net_connect_options_connectionlistener Default: `{port:8765}`
+* `.name` - String|Numeric - your application class identified. Default: `Math.floor(Math.random()*1000000)`
+* `.uid` - String|Numeric - your application unique identified. 
+Default: `name + '_' + Math.floor(Math.random()*1000000)`
+* `.messageMaker` - Object. Some module, that make and parse messages. See below. Default: `crypt-maker`
+* `.connect` - Object. Options for new.Socket.connect. Default: `{port: 8765}` 
+ 
+See [https://nodejs.org/api/net.html#net_net_connect_options_connectionlistener]
+(https://nodejs.org/api/net.html#net_net_connect_options_connectionlistener). Default: `{port:8765}`
 
 If use `crypt-maker` and if `algorithm && algorithm !== 'no'` and no key passed to constructor - throws error.
 
@@ -71,46 +83,141 @@ If use `crypt-maker` and if `algorithm && algorithm !== 'no'` and no key passed 
 Connect to server. If options aren't passed, connect with last options.
 If already connected - do nothing.
 Options are:
-* `options` {Object} - Required. Supports the following properties:
-  * `port` {Number} - Optional.
-  * `host` {String} - Optional.
-  * `backlog` {Number} - Optional.
-  * `path` {String} - Optional.
-  * `exclusive` {Boolean} - Optional.
-* `callback` {Function} - Optional.
+* `options` {Object} [optional] 
 
-For all info about this see: See https://nodejs.org/api/net.html#net_net_connect_options_connectionlistener
+Supports the following properties:
+  * `port` {Number} [optional]
+  * `host` {String} [optional]
+  * `backlog` {Number} [optional]
+  * `path` {String} [optional]
+  * `exclusive` {Boolean} [optional]
 
-## hc.close()
+For all info about this see: See 
+[https://nodejs.org/api/net.html#net_net_connect_options_connectionlistener]
+(https://nodejs.org/api/net.html#net_net_connect_options_connectionlistener).
+
+
+
+## hc.close([callback])
 
 Stops the client and close connect from accepting new connections and keeps existing
 connections.
 
+* `callback` {Function} [optional]
+
+
 ## hc.subscribe(eventName, callback)
 
-Create subscribing on server. Then event emitted - call `callback(bodyOfMessage)`
+Create subscribing on server. Then event emitted - call `callback(senderIdentifier, bodyOfMessage)`. 
+If error on subscribe `hc` will emit `'error'` event.
 
-## hc.unsubscribe(eventName)
+* `eventName` {String} - name of event
+* `callback` {Function}
 
-Unsubscribe from event with name.
 
-## hc.publish(eventName, body)
+## hc.unsubscribe(eventName[, callback])
 
-Publish event on server.
+Unsubscribe from event with name. If no `callback` and error on unsubscribe `hc` will emit `'error'` event.
 
-## hc.whisper(whom, body[, header])
+* `eventName` {String} - name of event
+* `callback` {Function} [optional]
 
-`whom` - who need this message
-`body` - body of message
-`header` - header object of message. Default `{event: 'whisper'}`
 
-## hc.write(header, body)
+## hc.publish(eventName, body[, callback])
 
-Make message (by message maker) and send message to socket. If send fails retry do this.
+Publish event on server. If no `callback` and error on publish `hc` will emit `'error'` event.
 
-## hc.writeMessage(message)
+* `whom` {String} - application name to send.
+* `eventName` {String} - name of event
+* `eventBody` {String | Object} - body of event
+* `callback` {Function} [optional]
 
-Send already made message. Retry if fails.
+
+
+## hc.whisper(whom, body[, header]) removed
+
+
+
+## hc.whisp(whom, eventName, eventBody, callback)
+
+Send event message to one application with name. 
+(Will send to one instance, but not for all application with name).
+
+* `whom` {String} - application name to send.
+* `eventName` {String} - name of event
+* `eventBody` {String | Object} - body of event
+* `callback` {Function}
+
+
+
+## hc.whispUid(whomUid, eventName, eventBody, callback)
+
+Send event message to one application with uid.
+
+* `whomUid` {String} - application name to send.
+* `eventName` {String} - name of event
+* `eventBody` {String | Object} - body of event
+* `callback` {Function}
+
+
+## hc.rpc(whom, action[, options][, callback])
+
+Try call procedure on application with name. 
+(Will send to one instance, but not for all application with name).
+
+* `whom` {String} - application name to send.
+* `action` {Object} - action object, that you want to call at application.
+* `action.name` {String} - action name, that you want to call at application.
+* `action.args` {Object | String | Number | Array} - arguments for action. `!!action.args` should return true.
+* `options` {Object} [optional] Options for rpc. *not ready yet*.
+* `callback` {Function} [optional]
+
+
+
+## hc.rpcUid(whomUid, action[, options][, callback])
+
+Try call procedure on application with uid.
+
+* `whomUid` {String} - application name to send.
+* `action` {Object} - action object, that you want to call at application.
+* `action.name` {String} - action name, that you want to call at application.
+* `action.args` {Object | String | Number | Array} - arguments for action. `!!action.args` should return true.
+* `options` {Object} [optional] Options for rpc. *not ready yet*.
+* `callback` {Function} [optional]
+
+
+
+## hc.write(header, body[, options][, callback])
+
+Send some message to server. *At now ignored by server*
+
+* `header` {Object} - header of message to send.
+* `body` {Object|string} - body of message yo send.
+* `options` {Object} [optional] Options for rpc. *not ready yet*.
+* `callback` {Function} [optional]
+
+
+
+## hc.addRpcWorker(actionName, callback)
+
+Add function to work with rpc calls.
+
+* `actionName` {String} - action name.
+* `callback` {Function} - function to call. See 
+[doc](http://numminorihsf.github.io/herald/index.html#!/api/HeraldClient-method-remoteProcedure)
+
+Returns `true` if added or `false` if there was function with such name.
+
+
+## hc.removeRpcWorker(actionName)
+
+Remove function from work with rpc calls.
+
+* `actionName` {String} - action name.
+
+Returns `true` if was such function else returns `false`.
+
+
 
 
 ## hc.unref()
@@ -150,45 +257,52 @@ Emitted when an error occurs.  The `'close'` event will be called directly
 following this event.
 
 
+
 # Message format
 
 Every message should has `header` and `body`.
 If there is no `header` or `body` - message will not sent.
-After the connect, client should send authorize request to server.
-Server passed this data to `authorizeFunction`.
 
-## Default authorize request format
 
-Header should has an field `event == 'authorize'`.
-Also there should be field `iAm` with name of application.
-Body also should has encrypted field `iAm` with same value. 
+## Authorize
+
 **Be careful** by default without any encrypt algorithm any can connect to your server if he know format.
 
 Example of message to authorize (without encrypt):
 
 ```
-    '{"event":"authorize","iAm":"Dev"}\r\n{"iAm":"Dev"}\r\n\r\n' 
+    '{"rpc":"herald-server","action":"authorize","actionId":7,"name":"156512",
+    "uid":"156512_86835","messId":76688,"retry":5,"timeout":15000}\r\n
+     {"args":{"wellKnown":"pHrAsE","name":"156512","uid":"156512_86835","rand":459}}\r\n\r\n' 
 ```
 
-If there is some connection with same name - will not authorize new connection and close it.
-If header.iAm !== body.iAm - close connect.
+If there is some connection with same uid - will not authorize new connection and close it.
+
 
 
 ## Message header format
 
 Fields:
-* `whisp` String - name of connection, where will try to whisper some message 
-(event field will be ignore and passed to connection)
-* `event` String - an event name, that will be publish. Except `'ping'`, `'pong'`, `'subscribe'`, `'unsubscribe'`
-* `time` Numeric [optional] - timestamp of ping event create date.
-* `iAm` String [optional] - connection name. Used for whispering. Unique for every connect.
+* `messId` Number - id of message. Client set it automaticaly.
+* `name` String - connection name. Used for whispering and rpc. Client set it to HeraldClient.name.
+* `uid` String - connection uid. Used for whispering and rpc. Unique for every connect. Client set it to HeraldClient.uid.
+* `retry` Number [optional] - Count of retries of sending this message. If no field - will not retry.
+*Now it is ignored by server. Will work soon.*
+* `timeout` Number [optional] - Duration in ms to wait answer from client. If no field - will not retry.
+*Now it is ignored by server. Will work soon.*
 
-### Special header events
+Event:
+* `whisp` String [optional] - name of connection to send event message.
+* `whispUid` String [optional] - uid of connection to send event message.
+* `event` String - event name. If no `whisp` or `whispUid` sends to all subscribers.
 
-`ping` - create only by HS. Every client should answer "pong" message with body of accepted message.
-`pong` - answer for "ping" message.
-`subscribe` - connection will subscribe to some events. name of event should be passed at body of message.
-`unsubscribe` - connection will unsubscribe from some events. name of event should be passed at body of message.
+RPC:
+* `actionId` Number - id of action. Client set it automaticaly.
+* `action` String - name of action.
+* `rpc` String [optional] - name of connection to send rpc message.
+* `rpcUid` String [optional] - uid of connection to send rpc message.
+* `rpcRegExp` String|RegExp [optional] - regexp to find connections by name to send rpc message.
+
 
 ## Message body format
 
@@ -196,83 +310,32 @@ Body can by plain string, json, number or something else, except functions.
 
 ## Message examples
 
-Examples shown without any 
+Examples shown without any encryption.
 
-Authorize message:
+RPC by client name message:
 ```js
-    '{"event":"authorize","iAm":"Dev"}\r\n{"iAm":"Dev"}\r\n\r\n'
-    //  {"event":"authorize","iAm":"Dev"}
-    //  {"iAm":"Dev"}
+     '{"rpc":"applicationToCall","action":"actionToCall","actionId":numberActionIdFromSender,
+     "name":"nameOfSender","uid":"uidOfSender","messId":numberMessageId}\r\n
+         {"args":{argsObject}}\r\n\r\n' 
 ```
 
-Ping message:
+RPC by client UID message:
 ```js
-    '{"event":"ping","time":1430200822338}\r\n{}\r\n\r\n'
-    //  {"event":"ping", "time":1430200822338}
-    //  {}
-```
-
-Pong message:
-```js
-    '{"event":"pong","time":1430200822338}\r\n{}\r\n\r\n'
-    //  {"event":"pong", "time":1430200822338}
-    //  {}
-```
-
-Subscribe message:
-```js
-    '{"event":"subscribe"}\r\n"eventName"\r\n\r\n'
-    //  {"event":"subscribe"}
-    //  "eventName"
-```
-
-Unsubscribe message:
-```js
-    '{"event":"unsubscribe"}\r\n"eventName"\r\n\r\n'
-    //  {"event":"unsubscribe"}
-    //  "eventName"
+     '{"rpcUid":"applicationToCall","action":"actionToCall","actionId":numberActionIdFromSender,
+     "name":"nameOfSender","uid":"uidOfSender","messId":numberMessageId}\r\n
+         {"args":{argsObject}}\r\n\r\n' 
 ```
 
 Whispering message:
 ```js
-    '{"whisp":"nameOfAppToWhisp","event":"someSecretEvent"}\r\n"eventBody"\r\n\r\n'
-    //  {"whisp":"nameOfAppToWhisp","event":"someSecretEvent"}
-    //  "eventBody"
+    '{"whisp":"nameOfAppToWhisp","event":"someSecretEvent","name":"nameOfSender","uid":"uidOfSender",
+    "messId":numberMessageId}\r\n"eventBody"\r\n\r\n'
 ```
 
-# messageMaker
-
-Message maker can be passed to server. It should has this methods:
-
-## .makeMessage(message)
-
-`message` is an Object. It should contains:
-+ `message.header` - Object. Header of messages
-    * `message.header.event` - String. Event, or doing
-    * `message.header.iAm` - String. Optional
-+ `message.body` - Object. May be `{}`
-
-Returns string formed to write into socket.
-
-## .parseMessage(message)
-
-`message` - encrypted formed string.
-Returns {header: headerObject, body: bodyObject}
-
-
-## .splitMessages(rawString)
-
-`rawString` some string, that socket connection sends. 
-If doesn't ends by some message separator - should return `null` or `[]`
-If ends by message separator - return array of messages (not parsed and not decrypted)
-
-## .getHeader(message)
-
-Returns header object from raw message.
-
-## .getBody(message)
-
-Returns body object from raw message.
+Event message:
+```js
+    '{"event":"someEvent","name":"nameOfSender","uid":"uidOfSender","messId":numberMessageId}\r\n"eventBody"\r\n\r\n'
+```
 
 # LICENSE - "MIT License"
 
