@@ -46,7 +46,7 @@ else {
             console.log('RPC NAME', err, data);
         });
 
-        hc.rpcUid(hc.uid, {name: 'someRpc', args: {'type': 'buUid'}}, function (err, data) {
+        hc.rpcUid(hc.uid, {name: 'someRpc', args: {'type': 'byUid'}}, function (err, data) {
             console.log('RPC UID', err, data);
         });
     }, 1000);
@@ -66,15 +66,15 @@ else {
                 if (err) console.error('Error in unsubscribing', err);
             });
             setInterval(function(){
-                hc.publish('channel1', 'C1: '+Math.random());
-                hc.publish('channel2', 'C2: '+Math.random());
-                hc.publish('channel2', 'C2: '+Math.random());
-                hc.publish('channel2', 'C2: '+Math.random());
-                hc.publish('channel2', 'C2: '+Math.random());
-                hc.publish('channel2', 'C2: '+Math.random());
-                hc.publish('channel2', 'C2: '+Math.random());
-                hc.publish('channel2', 'C2: '+Math.random());
-                hc.publish('channel2', 'C2: '+Math.random());
+                //hc.publish('channel1', 'C1: '+Math.random());
+                //hc.publish('channel2', 'C2: '+Math.random());
+                //hc.publish('channel2', 'C2: '+Math.random());
+                //hc.publish('channel2', 'C2: '+Math.random());
+                //hc.publish('channel2', 'C2: '+Math.random());
+                //hc.publish('channel2', 'C2: '+Math.random());
+                //hc.publish('channel2', 'C2: '+Math.random());
+                //hc.publish('channel2', 'C2: '+Math.random());
+                //hc.publish('channel2', 'C2: '+Math.random());
             },1).unref();
         }, 1000).unref();
     }, 1000).unref();
